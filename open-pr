@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+
+# Show help message
+show_help() {
+  cat <<EOF
+Usage: opr [OPTIONS]
+
+Opens or creates a pull request for the current branch in your browser.
+
+If a PR doesn't exist or is closed, it creates a new one with:
+- Title derived from branch name (e.g., "feature/PROJ-123-add-thing" → "PROJ-123 Add Thing")
+- Description containing commit messages since branching from default branch
+
+Options:
+    -h, --help     Show this help message and exit
+EOF
+  exit 0
+}
+
+# Parse command line arguments
+while [[ $# -gt 0 ]]; do
+  case $1 in
+  -h | --help)
+    show_help
+    ;;
+  *)
+    echo "Unknown option: $1"
+    show_help
+    ;;
+  esac
+  shift
+done
+
+# Try to get current PR URL and state
+PR_STATUS=$(gh pr status --json id,author,url,state)
+PR_URL=$(echo "$PR_STATUS" | jq -r ".currentBranch.url")
+PR_STATE=$(echo "$PR_STATUS" | jq -r ".currentBranch.state")
+
+# If PR_URL is null or PR is closed/merged, create a new one
+if [ "$PR_URL" = "null" ] || [ "$PR_STATE" = "CLOSED" ] || [ "$PR_STATE" = "MERGED" ]; then
+  echo "No open PR found. Creating one..."
+  # Get the default branch (usually main or master)
+  DEFAULT_BRANCH=$(gh repo view --json defaultBranchRef --jq .defaultBranchRef.name)
+
+  # Get current branch name and format it into a title
+  BRANCH_NAME=$(git branch --show-current)
+  # Remove feature/ or bugfix/ prefix if present
+  BRANCH_NAME=${BRANCH_NAME#feature/}
+  BRANCH_NAME=${BRANCH_NAME#bugfix/}
+  # Convert dashes to spaces after ticket number
+  TITLE=$(echo "$BRANCH_NAME" | sed -E 's/([A-Z]+-[0-9]+)-/\1 /' | sed 's/-/ /g' | sed 's/\b\(.\)/\u\1/g')
+
+  # Get commit messages for PR body
+  BODY=$(git log --format=%B "${DEFAULT_BRANCH}"..)
+
+  PR_URL=$(gh pr create --title "$TITLE" --body "$BODY" | tail -n 1)
+fi
+
+# Open the PR URL in browser
+open "$PR_URL"
