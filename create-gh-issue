@@ -1,0 +1,75 @@
+#!/bin/bash
+
+# Parse command line arguments
+TITLE=""
+BODY=""
+INTERACTIVE=true
+
+while [[ $# -gt 0 ]]; do
+  case $1 in
+    --title)
+      TITLE="$2"
+      INTERACTIVE=false
+      shift 2
+      ;;
+    --body)
+      BODY="$2"
+      INTERACTIVE=false
+      shift 2
+      ;;
+    -h|--help)
+      echo "Usage: $0 [--title \"Issue Title\"] [--body \"Issue Body\"]"
+      echo ""
+      echo "Options:"
+      echo "  --title    Issue title (if not provided, will prompt interactively)"
+      echo "  --body     Issue body (if not provided, will prompt interactively)"
+      echo "  -h, --help Show this help message"
+      echo ""
+      echo "Examples:"
+      echo "  $0                                    # Interactive mode"
+      echo "  $0 --title \"Bug fix\"                # Interactive body"
+      echo "  $0 --title \"Bug fix\" --body \"Fix\" # Non-interactive"
+      exit 0
+      ;;
+    *)
+      echo "Unknown option: $1"
+      echo "Use -h or --help for usage information"
+      exit 1
+      ;;
+  esac
+done
+
+# Check if gh CLI is installed
+if ! command -v gh &> /dev/null; then
+  echo "❌ GitHub CLI (gh) not installed. Install it from https://cli.github.com/"
+  exit 1
+fi
+
+# Check if current directory is a git repo
+if ! git rev-parse --is-inside-work-tree &> /dev/null; then
+  echo "❌ This is not a git repository."
+  exit 1
+fi
+
+# Check if there's a GitHub remote
+REMOTE_URL=$(git remote get-url origin 2>/dev/null)
+if [[ "$REMOTE_URL" != *github.com* ]]; then
+  echo "❌ No GitHub remote found. Remote URL is: $REMOTE_URL"
+  exit 1
+fi
+
+# Get user input if not provided via flags
+if [[ -z "$TITLE" ]]; then
+  read -p "📝 Issue title: " TITLE
+fi
+
+if [[ -z "$BODY" ]]; then
+  echo "📄 Enter issue body. Press Ctrl+D when done:"
+  BODY=$(</dev/stdin)
+fi
+
+# Create GitHub issue
+gh issue create --title "$TITLE" --body "$BODY"
+
+# Done
+echo "✅ Issue created successfully!"
