@@ -2,6 +2,8 @@
 
 A collection of useful command-line tools for developers to streamline daily workflows and boost productivity.
 
+Mine lives at `~/.cli_tools`, but you can put it wherever if you take that into account when setting up the global pathing.
+
 ## 🛠️ Tools Overview
 
 | Tool | Description | Usage |
