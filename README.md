@@ -24,11 +24,104 @@ A collection of useful command-line tools for developers to streamline daily wor
    ```bash
    chmod +x clean-branches open-pr create-gh-issue
    ```
-3. Add to your PATH (optional):
+
+## 🌐 Global Access (Add to PATH)
+
+To run these tools from anywhere on your system, add the directory to your PATH:
+
+### macOS & Linux
+
+**Option 1: Add to your shell profile (Recommended)**
+
+1. **Find your shell profile file:**
    ```bash
-   # Add to your shell profile (.bashrc, .zshrc, etc.)
-   export PATH="$PATH:/path/to/your/cli-tools"
+   # For bash users
+   echo $HOME/.bashrc
+   
+   # For zsh users (macOS default)
+   echo $HOME/.zshrc
+   
+   # For other shells
+   echo $HOME/.profile
    ```
+
+2. **Add the path to your profile:**
+   ```bash
+   # Replace with your actual path
+   export PATH="$PATH:/Users/yourusername/.cli-tools"
+   ```
+
+3. **Reload your profile:**
+   ```bash
+   # For bash
+   source ~/.bashrc
+   
+   # For zsh
+   source ~/.zshrc
+   
+   # For other shells
+   source ~/.profile
+   ```
+
+**Option 2: One-liner setup**
+```bash
+# For zsh (macOS default)
+echo 'export PATH="$PATH:/Users/yourusername/.cli-tools"' >> ~/.zshrc && source ~/.zshrc
+
+# For bash
+echo 'export PATH="$PATH:/Users/yourusername/.cli-tools"' >> ~/.bashrc && source ~/.bashrc
+```
+
+### Windows
+
+**Option 1: System Environment Variables (GUI)**
+1. Open System Properties → Advanced → Environment Variables
+2. Edit the `Path` variable
+3. Add your CLI tools directory path
+4. Restart your terminal
+
+**Option 2: Command line**
+```cmd
+# Add to user PATH
+setx PATH "%PATH%;C:\path\to\your\.cli-tools"
+
+# Or add to system PATH (requires admin)
+setx PATH "%PATH%;C:\path\to\your\.cli-tools" /M
+```
+
+### Verify Installation
+
+After adding to PATH, you should be able to run tools from anywhere:
+
+```bash
+# Test from any directory
+clean-branches --help
+open-pr --help
+create-gh-issue --help
+```
+
+### Troubleshooting PATH Issues
+
+**Check if PATH is set correctly:**
+```bash
+echo $PATH | grep cli-tools
+```
+
+**Find the full path to your tools:**
+```bash
+# From the cli-tools directory
+pwd
+```
+
+**Test a specific tool:**
+```bash
+which clean-branches
+```
+
+**If tools aren't found:**
+1. Verify the path is correct in your profile
+2. Make sure you've reloaded your shell profile
+3. Check that scripts are executable: `ls -la /path/to/cli-tools`
 
 ## 📖 Tool Documentation
 
@@ -46,19 +139,19 @@ Deletes local and remote Git branches that have been merged into the main branch
 **Usage:**
 ```bash
 # Interactive cleanup (recommended)
-./clean-branches
+clean-branches
 
 # Preview what would be deleted
-./clean-branches --dry-run
+clean-branches --dry-run
 
 # Force delete without confirmation
-./clean-branches --force
+clean-branches --force
 
 # Only clean local branches
-./clean-branches --local
+clean-branches --local
 
 # Only clean remote branches
-./clean-branches --remote
+clean-branches --remote
 ```
 
 **Options:**
@@ -81,10 +174,10 @@ Opens or creates a pull request for the current branch in your browser.
 **Usage:**
 ```bash
 # Open existing PR or create new one
-./open-pr
+open-pr
 
 # Show help
-./open-pr --help
+open-pr --help
 ```
 
 **How it works:**
@@ -107,13 +200,13 @@ Creates GitHub issues with interactive or non-interactive input.
 **Usage:**
 ```bash
 # Interactive mode
-./create-gh-issue
+create-gh-issue
 
 # Non-interactive mode
-./create-gh-issue --title "Bug fix needed" --body "This is the issue description"
+create-gh-issue --title "Bug fix needed" --body "This is the issue description"
 
 # Interactive title, non-interactive body
-./create-gh-issue --body "Issue description here"
+create-gh-issue --body "Issue description here"
 ```
 
 **Options:**
@@ -128,22 +221,22 @@ Creates GitHub issues with interactive or non-interactive input.
 **Create issues from command line:**
 ```bash
 # Create a bug report
-./create-gh-issue --title "Fix login bug" --body "Users cannot log in with valid credentials"
+create-gh-issue --title "Fix login bug" --body "Users cannot log in with valid credentials"
 
 # Create a feature request
-./create-gh-issue --title "Add dark mode" --body "Request to add dark theme option to the application"
+create-gh-issue --title "Add dark mode" --body "Request to add dark theme option to the application"
 ```
 
 **Clean up branches in CI/CD:**
 ```bash
 # Clean merged branches without prompts
-./clean-branches --force
+clean-branches --force
 ```
 
 **Create PRs from scripts:**
 ```bash
 # Create and open PR
-./open-pr
+open-pr
 ```
 
 ### Integration with Other Tools
@@ -152,24 +245,24 @@ Creates GitHub issues with interactive or non-interactive input.
 ```bash
 # Add to your .gitconfig
 [alias]
-    cleanup = !./clean-branches
-    pr = !./open-pr
-    issue = !./create-gh-issue
+    cleanup = !clean-branches
+    pr = !open-pr
+    issue = !create-gh-issue
 ```
 
 **Use in shell functions:**
 ```bash
 # Add to your .bashrc or .zshrc
 function cleanup() {
-    ./clean-branches "$@"
+    clean-branches "$@"
 }
 
 function pr() {
-    ./open-pr "$@"
+    open-pr "$@"
 }
 
 function issue() {
-    ./create-gh-issue "$@"
+    create-gh-issue "$@"
 }
 ```
 
@@ -204,11 +297,17 @@ winget install GitHub.cli
 chmod +x clean-branches open-pr create-gh-issue
 ```
 
+**"Command not found" after adding to PATH**
+- Verify the path is correct: `echo $PATH`
+- Check if the directory exists: `ls /path/to/cli-tools`
+- Reload your shell profile: `source ~/.zshrc` or `source ~/.bashrc`
+- Restart your terminal
+
 ### Debug Mode
 
 For troubleshooting, you can run scripts with bash debugging:
 ```bash
-bash -x ./clean-branches
+bash -x clean-branches
 ```
 
 ## 🤝 Contributing
